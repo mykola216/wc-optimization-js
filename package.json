@@ -1,0 +1,23 @@
+{
+  "name": "wc-opt-coverage",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon index.js",
+    "cov": "nodemon start.js",
+    "ope": "nodemon open.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "browserify": "^17.0.0",
+    "express": "^4.18.2",
+    "glob": "^10.3.4",
+    "google-closure-compiler": "^20230802.0.0",
+    "nodemon": "^3.0.1",
+    "puppeteer": "^21.1.1"
+  }
+}
