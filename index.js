@@ -96,6 +96,25 @@ async function generateCoveragePar(site_url_page = "", page_send_cov = '') {
             window.scrollTo(0, document.body.scrollHeight);
         }); 
 
+
+        await page.hover('li.menu_block_top_custom_all.menu-item.menu-item-type-custom.menu-item-object-custom.wd-event-hover.menu-item-has-children');
+        await page.hover('li.menu-item.menu-item-type-taxonomy.menu-item-object-product_cat');
+        await page.hover("li.menu-item.menu-item-type-taxonomy");
+        await page.hover('li.item-with-label.item-label-primary>a');
+        await page.hover('.wd-header-cart');
+        // await page.hover('.promo-banner.banner-default.banner-hover-zoom.color-scheme-.banner-btn-size-default.banner-btn-style-default.cursor-pointer');
+        await page.hover('.product-element-top.wd-quick-shop');
+        await page.hover('.wd-button-wrapper.text-center');
+        await page.hover('a.btn.btn-style-bordered.btn-style-rectangle');
+        await page.hover('.flickity-button.flickity-prev-next-button');
+        //await page.click('.flickity-button.flickity-prev-next-button');
+        //await page.click('#cn-accept-cookie');
+        
+        await page.hover('li.dot:nth-of-type(even)');
+        //await page.click('li.dot:nth-of-type(even)');
+        //await page.hover('a.elementor-button.elementor-button-link.elementor-size-smі');
+        //await page.hover('a.scrollToTop.button-show');
+
         const coverageCSS = await page.coverage.stopCSSCoverage();
         const coverageJs = await page.coverage.stopJSCoverage();
         
