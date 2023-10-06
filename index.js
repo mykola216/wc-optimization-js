@@ -1,4 +1,5 @@
 const puppeteer = require('puppeteer');
+//const puppeteer = require('puppeteer-core');
 const fs = require('fs');
 const path = require('path'); // Додайте цей рядок
 const express = require("express");
@@ -56,7 +57,7 @@ app.post('/api/homemobile', (req, res) => {
             res.status(200).json({
                 page_send_cov: page_send_cov,
                 status: 200,
-                message: json
+                message: json,
             })
             res.end();
         }).catch(error => {
@@ -91,11 +92,12 @@ app.post('/api/homedesctop', (req, res) => {
         res.end();
     } else {
         let site_url_page = req.body.site_url_page;
-        generateCoveragePar(req.body.site_url_page, req.body.page_send_cov).then(([json, page_send_cov]) => {
+        generateCoveragePar(req.body.site_url_page, req.body.page_send_cov, req.body.css_id_or_class_click, req.body.css_id_or_class_hover).then(([json, page_send_cov, resultItem]) => {
             res.status(200).json({
                 page_send_cov: page_send_cov,
                 status: 200,
-                message: json
+                message: json,
+                resultItem: resultItem
             })
             res.end();
         }).catch(error => {
@@ -115,15 +117,15 @@ async function generateCoverageParMobile(site_url_page = "", page_send_cov = '')
         // Launch the browser and open a new blank page
         const browser = await puppeteer.launch({ headless: 'new' });
         const page = await browser.newPage();
-        
-	    // Set screen size
+
+        // Set screen size
         await page.setViewport({ width: 360, height: 576 });
-        
-         // Navigate the page to a URL
+
+        // Navigate the page to a URL
         await page.goto(site_url_page);
-        
+
         await page.waitForSelector('.min-footer');
-        
+
         //await page.coverage.startCSSCoverage();
         // Start recording JS and CSS coverage data
         await Promise.all([
@@ -133,7 +135,7 @@ async function generateCoverageParMobile(site_url_page = "", page_send_cov = '')
 
         await page.evaluate(() => {
             window.scrollTo(0, document.body.scrollHeight);
-        }); 
+        });
 
 
         //await page.hover('li.menu_block_top_custom_all.menu-item.menu-item-type-custom.menu-item-object-custom.wd-event-hover.menu-item-has-children');
@@ -148,7 +150,7 @@ async function generateCoverageParMobile(site_url_page = "", page_send_cov = '')
         //await page.hover('.flickity-button.flickity-prev-next-button');
         //await page.click('.flickity-button.flickity-prev-next-button');
         //await page.click('#cn-accept-cookie');
-        
+
         //await page.hover('li.dot:nth-of-type(even)');
         //await page.click('li.dot:nth-of-type(even)');
         //await page.hover('a.elementor-button.elementor-button-link.elementor-size-smі');
@@ -156,19 +158,19 @@ async function generateCoverageParMobile(site_url_page = "", page_send_cov = '')
 
         const coverageCSS = await page.coverage.stopCSSCoverage();
         const coverageJs = await page.coverage.stopJSCoverage();
-        
+
         // Save the converted obj to string
         const jsoncss = JSON.stringify(coverageCSS);
         const jsonjs = JSON.stringify(coverageJs);
 
-        /* Converted css optimization (works with the obj) */ 
+        /* Converted css optimization (works with the obj) */
         const data_css = coverageCSS;
         let covered_css = '';
-          for (let entry of data_css) { 
+        for (let entry of data_css) {
             for (let text_all_css of entry.ranges) {
-              covered_css += entry.text.slice(text_all_css.start, text_all_css.end) + "\n";
-            }    
-        }        
+                covered_css += entry.text.slice(text_all_css.start, text_all_css.end) + "\n";
+            }
+        }
 
         /*
         const flags = {
@@ -176,7 +178,7 @@ async function generateCoverageParMobile(site_url_page = "", page_send_cov = '')
         };
           const out = ClosureCompiler(flags);
           console.log (flags);
-        */  
+        */
 
         /*
         //start JS
@@ -208,31 +210,54 @@ async function generateCoverageParMobile(site_url_page = "", page_send_cov = '')
             break;
         }
         */
-        await browser.close();       
+        await browser.close();
         console.log('mob end_convert page ' + page_send_cov);
-        return [covered_css, page_send_cov]; 
+        return [covered_css, page_send_cov];
     } catch (error) {
         console.log(error.response.body);
     }
 };
 
 
-async function generateCoveragePar(site_url_page = "", page_send_cov = '') {
+async function generateCoveragePar(site_url_page = "", page_send_cov = '', css_id_or_class_click = '', css_id_or_class_hover = '') {
     try {
-        //console.log(pageurl);
+        console.log('site_url_page' + site_url_page);
+        console.log('page_send_cov' + page_send_cov);
+        console.log('Start async function desctop');
 
+        let resultItem = "";
         // Launch the browser and open a new blank page
-        const browser = await puppeteer.launch({ headless: 'new' });
-        const page = await browser.newPage();
-        
-	    // Set screen size
+        //const browser = await puppeteer.launch({ headless: 'new', executablePath: '/opt/google/chrome/chrome' });
+
+        // Перевірте елементи у масиві
+
+
+        var browser = await puppeteer.launch({
+            headless: 'new',
+            args: ['--no-sandbox']
+        });
+
+        /* !!!! IS correct   */
+        /*var browser = await puppeteer.launch({
+            headless: 'new',
+            args: ['--no-sandbox'],
+            defaultViewport: {width: 1920, height: 1080}
+    	
+        });*/
+
+
+        console.log(browser);
+        console.log('11111111111');
+        var page = await browser.newPage();
+        console.log(page);
+        // Set screen size
         await page.setViewport({ width: 1366, height: 768 });
-        
-         // Navigate the page to a URL
+
+        // Navigate the page to a URL
         await page.goto(site_url_page);
-        
+
         await page.waitForSelector('.min-footer');
-        
+
         //await page.coverage.startCSSCoverage();
         // Start recording JS and CSS coverage data
         await Promise.all([
@@ -242,42 +267,53 @@ async function generateCoveragePar(site_url_page = "", page_send_cov = '') {
 
         await page.evaluate(() => {
             window.scrollTo(0, document.body.scrollHeight);
-        }); 
+        });
 
+        async function performActions(css_selector, actionType) {
+            if (css_selector.length === 0) return;
 
-        await page.hover('li.menu_block_top_custom_all.menu-item.menu-item-type-custom.menu-item-object-custom.wd-event-hover.menu-item-has-children');
-        await page.hover('li.menu-item.menu-item-type-taxonomy.menu-item-object-product_cat');
-        await page.hover("li.menu-item.menu-item-type-taxonomy");
-        await page.hover('li.item-with-label.item-label-primary>a');
-        await page.hover('.wd-header-cart');
-        // await page.hover('.promo-banner.banner-default.banner-hover-zoom.color-scheme-.banner-btn-size-default.banner-btn-style-default.cursor-pointer');
-        await page.hover('.product-element-top.wd-quick-shop');
-        await page.hover('.wd-button-wrapper.text-center');
-        await page.hover('a.btn.btn-style-bordered.btn-style-rectangle');
-        await page.hover('.flickity-button.flickity-prev-next-button');
-        //await page.click('.flickity-button.flickity-prev-next-button');
-        //await page.click('#cn-accept-cookie');
-        
-        await page.hover('li.dot:nth-of-type(even)');
-        //await page.click('li.dot:nth-of-type(even)');
-        //await page.hover('a.elementor-button.elementor-button-link.elementor-size-smі');
-        //await page.hover('a.scrollToTop.button-show');
+            const selectors = css_selector.split("/").filter(e => e != '');
+
+            for (const selector of selectors) {
+                try {
+                    await page.waitForSelector(selector, { timeout: 5000 });
+
+                    if (actionType === 'click') {
+                        await page.click(selector);
+                        resultItem += `<p>Click on an item with selector: <strong>${selector}</strong></p>`;
+                        console.log(`Click on an item with selector: ${selector}`);
+                    } else if (actionType === 'hover') {
+                        const elementHandle = await page.$(selector);
+                        await elementHandle.hover();
+                        resultItem += `<p>Cursor pointed to element with selector: <strong>${selector}</strong></p>`;
+                        console.log(`Cursor pointed to element with selector: ${selector}`);
+                    }
+                } catch (error) {
+                    resultItem += `<p>The element with selector <strong>${selector}</strong> was not found or is not available.</p>`;
+                    console.error(`The element with selector ${selector} was not found or is not available.`);
+                }
+            }
+        }
+
+        await performActions(css_id_or_class_click, 'click');
+        await performActions(css_id_or_class_hover, 'hover');
+
 
         const coverageCSS = await page.coverage.stopCSSCoverage();
         const coverageJs = await page.coverage.stopJSCoverage();
-        
+
         // Save the converted obj to string
         const jsoncss = JSON.stringify(coverageCSS);
         const jsonjs = JSON.stringify(coverageJs);
 
-        /* Converted css optimization (works with the obj) */ 
+        /* Converted css optimization (works with the obj) */
         const data_css = coverageCSS;
         let covered_css = '';
-          for (let entry of data_css) { 
+        for (let entry of data_css) {
             for (let text_all_css of entry.ranges) {
-              covered_css += entry.text.slice(text_all_css.start, text_all_css.end) + "\n";
-            }    
-        }        
+                covered_css += entry.text.slice(text_all_css.start, text_all_css.end) + "\n";
+            }
+        }
 
         /*
         const flags = {
@@ -285,7 +321,7 @@ async function generateCoveragePar(site_url_page = "", page_send_cov = '') {
         };
           const out = ClosureCompiler(flags);
           console.log (flags);
-        */  
+        */
 
         /*
         //start JS
@@ -317,14 +353,14 @@ async function generateCoveragePar(site_url_page = "", page_send_cov = '') {
             break;
         }
         */
-        await browser.close();       
+        await browser.close();
         console.log('end_convert page ' + page_send_cov);
-        return [covered_css, page_send_cov]; 
+        return [covered_css, page_send_cov, resultItem];
     } catch (error) {
         console.log(error.response.body);
     }
 };
-   
+
 
 
 
